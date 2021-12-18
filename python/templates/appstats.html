@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+<title>拾光 - 运营统计</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<!-- https://stackoverflow.com/questions/66935329/use-inline-svg-as-favicon -->
+<link rel="icon" type="image/svg+xml" sizes="any" href="data:image/svg+xml,
+%3Csvg width='940' height='940' xmlns='http://www.w3.org/2000/svg' p-id='8588' version='1.1' class='icon' t='1639795254538'%3E%3Cg%3E%3Ctitle%3ELayer 1%3C/title%3E%3Cpath id='svg_1' p-id='8589' fill='%2300BCD4'
+d='m743.33333,347l128,0l0,512l-128,0l0,-512zm-170.66666,170.66667l128,0l0,341.33333l-128,0l0,-341.33333zm-170.66667,-85.33334l128,0l0,426.66667l-128,0l0,-426.66667zm-170.66667,213.33334l128,0l0,213.33333l-128,0l0,-213.33333zm-170.66666,-85.33334l128,0l0,298.66667l-128,0l0,-298.66667z'/%3E%3Cpath id='svg_2' p-id='8590' fill='%233F51B5'
+d='m124.66667,304.33333m-64,0a64,64 0 1 0 128,0a64,64 0 1 0 -128,0z'/%3E%3Cpath id='svg_3' p-id='8591' fill='%233F51B5' d='m295.33333,347m-64,0a64,64 0 1 0 128,0a64,64 0 1 0 -128,0z'/%3E%3Cpath id='svg_4' p-id='8592' fill='%233F51B5'
+d='m466,197.66667m-64,0a64,64 0 1 0 128,0a64,64 0 1 0 -128,0z'/%3E%3Cpath id='svg_5' p-id='8593' fill='%233F51B5' d='m636.66667,240.33333m-64,0a64,64 0 1 0 128,0a64,64 0 1 0 -128,0z'/%3E%3Cpath id='svg_6' p-id='8594' fill='%233F51B5'
+d='m807.33333,155m-64,0a64,64 0 1 0 128,0a64,64 0 1 0 -128,0z'/%3E%3Cpath id='svg_7' p-id='8595' fill='%233F51B5' d='m788.13333,116.6l-155.73333,78.93333l-177.06667,-44.8l-170.66666,149.33334l-149.33334,-36.26667l-21.33333,81.06667l192,49.06666l170.66667,-149.33333l164.26666,40.53333l185.6,-91.73333l-38.4,-76.8z'/%3E%3C/g%3E%3C/svg%3E">
+<!-- <link rel="icon" href="data:image/png;base64,..."> -->
+<style type="text/css">
+body {
+  max-width: 40rem;
+  margin: auto;
+  font-family: sans-serif;
+  padding: 0 1rem;
+}
+p.debug {
+  font-size: 0.8rem;
+  color: #88666666;
+}
+p.copyright {
+  color: #666;
+}
+@media screen and (max-width: 40rem) {
+  #div_beat {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1.3;
+  }
+  #div_launch {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1.2;
+  }
+  #div_fan {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1.4;
+  }
+  #div_src {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1.7;
+  }
+  #div_api {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 0.7;
+  }
+  #div_ver {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1.7;
+  }
+  #div_os {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1.7;
+  }
+}
+@media screen and (min-width: 40rem) {
+  #div_beat {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1.6;
+  }
+  #div_launch {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1.4;
+  }
+  #div_fan {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1.6;
+  }
+  #div_api {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1.2;
+  }
+  #div_ver {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 2.5;
+  }
+  #div_src {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 2.5;
+  }
+  #div_os {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 2.5;
+  }
+}
+</style>
+<!-- https://www.chartjs.org/docs/latest/samples -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.6.2/dist/chart.min.js"></script>
+</head>
+<body>
+<h1>拾光 for Windows 11</h1>
+<q>岁月如歌，时光如诗。拾光，每日一景</q>
+<h2>1 小时活跃</h2>
+<div id="div_beat">
+  <canvas id="chart_beat"></canvas>
+</div>
+<h2>2 日活跃</h2>
+<div id="div_launch">
+  <canvas id="chart_launch"></canvas>
+</div>
+<h2>3 用户</h2>
+<div id="div_fan">
+  <canvas id="chart_fan"></canvas>
+</div>
+<h2>4 图源</h2>
+<div id="div_api">
+  <canvas id="chart_api"></canvas>
+</div>
+<h2>5 版本</h2>
+<div id="div_ver">
+  <canvas id="chart_ver"></canvas>
+</div>
+<h2>6 分发</h2>
+<div id="div_src">
+  <canvas id="chart_src"></canvas>
+</div>
+<h2>7 系统</h2>
+<div id="div_os">
+  <canvas id="chart_os"></canvas>
+</div>
+<br />
+<p class="debug"><em>debug: {{debug}} | chart.js 3.6.2</em></p>
+<p class="copyright"><em>Copyright © 2021 nguaduot. All rights reserved.</em></p>
+<div id="flask_beat" data-flask="{{beat}}" style="display:none"></div>
+<div id="flask_user" data-flask="{{user}}" style="display:none"></div>
+<div id="flask_fan" data-flask="{{fan}}" style="display:none"></div>
+<div id="flask_api" data-flask="{{api}}" style="display:none"></div>
+<div id="flask_ver" data-flask="{{ver}}" style="display:none"></div>
+<div id="flask_src" data-flask="{{src}}" style="display:none"></div>
+<div id="flask_os" data-flask="{{os}}" style="display:none"></div>
+<script>
+  const CHART_COLORS = {
+    red: 'rgb(255, 99, 132)',
+    orange: 'rgb(255, 159, 64)',
+    yellow: 'rgb(255, 205, 86)',
+    green: 'rgb(75, 192, 192)',
+    blue: 'rgb(54, 162, 235)',
+    purple: 'rgb(153, 102, 255)',
+    grey: 'rgb(201, 203, 207)'
+  };
+
+  renderChartBeat();
+  renderChartLaunch();
+  renderChartFan();
+  renderChartApi();
+  renderChartVer();
+  renderChartSrc();
+  renderChartOs();
+
+  function renderChartBeat() {
+    var ctx = document.getElementById("chart_beat");
+    var data_flask = eval("(" + document.getElementById("flask_beat").getAttribute("data-flask") + ")");
+    var options = {};
+    var chartLaunch = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: data_flask["label"],
+        datasets: [{
+          label: "启动数",
+          data: data_flask["data1"],
+          borderColor: CHART_COLORS.blue,
+          borderWidth: 1,
+          radius: 0
+        }, {
+          label: "用户数",
+          data: data_flask["data2"],
+          borderColor: CHART_COLORS.red,
+          borderWidth: 1,
+          radius: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          mode: "index",
+          intersect: false
+        },
+        plugins: {
+          legend: false,
+          tooltip: {
+            enabled: true,
+            callbacks: {
+              label: function(context) {
+                let label = context.dataset.label || "";
+                if (label) {
+                  label += "：";
+                }
+                if (context.parsed.y !== null) {
+                  label += Math.abs(context.parsed.y);
+                }
+                return label;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: {
+              display: true
+            },
+            ticks: {
+              display: true,
+              callback: function(value, index) {
+                let v = this.getLabelForValue(value);
+                let span = new Date() - new Date(new Date().getFullYear() + "/" + v);
+                return span >= 0 && span < 60 * 60 * 1000 ? v : null;
+              }
+            }
+          },
+          y: {
+            grid: {
+              display: false
+            },
+            ticks: {
+              display: true,
+              callback: v => Math.abs(v)
+            }
+          }
+        },
+        animations: {
+          radius: {
+            duration: 400,
+            easing: 'linear',
+            loop: (context) => context.active
+          }
+        },
+        hoverRadius: 8,
+        hoverBackgroundColor: CHART_COLORS.red
+      }
+    });
+  }
+
+  function renderChartLaunch() {
+    var ctx = document.getElementById("chart_launch");
+    var data_flask = eval("(" + document.getElementById("flask_user").getAttribute("data-flask") + ")");
+    var options = {};
+    var chartLaunch = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: data_flask["label"],
+        datasets: [{
+          type: "line",
+          label: "用户数",
+          data: data_flask["data2"],
+          borderColor: CHART_COLORS.red,
+          backgroundColor: CHART_COLORS.red,
+          pointStyle: "circle",
+          pointRadius: 6
+        }, {
+          label: "启动数",
+          data: data_flask["data1"],
+          borderRadius: 6,
+          backgroundColor: CHART_COLORS.blue
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          mode: "index",
+          intersect: false
+        },
+        plugins: {
+          legend: true
+        },
+        scales: {
+          x: {
+            grid: {
+              display: false
+            },
+            ticks: {
+              display: true
+            }
+          },
+          y: {
+            grid: {
+              display: false
+            },
+            ticks: {
+              display: true
+            }
+          }
+        }
+      }
+    });
+  }
+
+  function renderChartFan() {
+    var ctx = document.getElementById("chart_fan");
+    var data_flask = eval("(" + document.getElementById("flask_fan").getAttribute("data-flask") + ")");
+    var options = {};
+    var chartLaunch = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: data_flask["label"],
+        datasets: [{
+          label: "用户数",
+          data: data_flask["data1"],
+          borderRadius: 6,
+          backgroundColor: CHART_COLORS.red
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          mode: "dataset",
+          intersect: false
+        },
+        plugins: {
+          legend: false
+        },
+        scales: {
+          x: {
+            grid: {
+              display: false
+            },
+            ticks: {
+              display: true
+            }
+          },
+          y: {
+            grid: {
+              display: false
+            },
+            ticks: {
+              display: true
+            }
+          }
+        }
+      }
+    });
+  }
+
+  function renderChartApi() {
+    var ctx = document.getElementById("chart_api");
+    var data_flask = eval("(" + document.getElementById("flask_api").getAttribute("data-flask") + ")");
+    var options = {};
+    var chartLaunch = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: data_flask["label"],
+        datasets: [{
+          label: "历史",
+          data: data_flask["data1"],
+          borderRadius: 6,
+          backgroundColor: CHART_COLORS.grey,
+          xAxisID: "x1"
+        }, {
+          label: "今日启动数",
+          data: data_flask["data2"],
+          borderRadius: 6,
+          backgroundColor: CHART_COLORS.blue,
+          xAxisID: "x2"
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          intersect: false,
+          mode: "dataset"
+        },
+        plugins: {
+          legend: true
+        },
+        indexAxis: "y",
+        scales: {
+          x1: {
+            type: "linear",
+            display: true,
+            position: "top",
+            grid: {
+              display: false
+            },
+            ticks: {
+              display: true
+            }
+          },
+          x2: {
+            type: "linear",
+            display: true,
+            position: "bottom",
+            grid: {
+              display: false
+            },
+            ticks: {
+              display: true
+            }
+          },
+          y: {
+            grid: {
+              display: false
+            },
+            ticks: {
+              display: true
+            }
+          }
+        }
+      }
+    });
+  }
+
+  function renderChartVer() {
+    var ctx = document.getElementById("chart_ver");
+    var data_flask = eval("(" + document.getElementById("flask_ver").getAttribute("data-flask") + ")");
+    var options = {};
+    var chartLaunch = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: data_flask["label"],
+        datasets: [{
+          label: "历史",
+          data: data_flask["data1"],
+          borderRadius: 6,
+          backgroundColor: CHART_COLORS.grey,
+          xAxisID: "x1"
+        }, {
+          label: "今日启动数",
+          data: data_flask["data2"],
+          borderRadius: 6,
+          backgroundColor: CHART_COLORS.blue,
+          xAxisID: "x2"
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          intersect: false,
+          mode: "dataset"
+        },
+        plugins: {
+          legend: true
+        },
+        indexAxis: "y",
+        scales: {
+          x1: {
+            type: "linear",
+            display: true,
+            position: "top",
+            grid: {
+              display: false
+            },
+            ticks: {
+              display: true
+            }
+          },
+          x2: {
+            type: "linear",
+            display: true,
+            position: "bottom",
+            grid: {
+              display: false
+            },
+            ticks: {
+              display: true
+            }
+          },
+          y: {
+            grid: {
+              display: false
+            },
+            ticks: {
+              display: true
+            }
+          }
+        }
+      }
+    });
+  }
+
+  function renderChartSrc() {
+    var ctx = document.getElementById("chart_src");
+    var data_flask = eval("(" + document.getElementById("flask_src").getAttribute("data-flask") + ")");
+    var options = {};
+    var chartLaunch = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: data_flask["label"],
+        datasets: [{
+          label: "历史",
+          data: data_flask["data1"],
+          borderRadius: 6,
+          backgroundColor: CHART_COLORS.grey,
+          xAxisID: "x1"
+        }, {
+          label: "今日启动数",
+          data: data_flask["data2"],
+          borderRadius: 6,
+          backgroundColor: CHART_COLORS.blue,
+          xAxisID: "x2"
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          intersect: false,
+          mode: "dataset"
+        },
+        plugins: {
+          legend: true
+        },
+        indexAxis: "y",
+        scales: {
+          x1: {
+            type: "linear",
+            display: true,
+            position: "top",
+            grid: {
+              display: false
+            },
+            ticks: {
+              display: true
+            }
+          },
+          x2: {
+            type: "linear",
+            display: true,
+            position: "bottom",
+            grid: {
+              display: false
+            },
+            ticks: {
+              display: true
+            }
+          },
+          y: {
+            grid: {
+              display: false
+            },
+            ticks: {
+              display: true
+            }
+          }
+        }
+      }
+    });
+  }
+
+  function renderChartOs() {
+    var ctx = document.getElementById("chart_os");
+    var data_flask = eval("(" + document.getElementById("flask_os").getAttribute("data-flask") + ")");
+    var options = {};
+    var chartLaunch = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: data_flask["label"],
+        datasets: [{
+          label: "历史",
+          data: data_flask["data1"],
+          borderRadius: 6,
+          backgroundColor: CHART_COLORS.grey,
+          xAxisID: "x1"
+        }, {
+          label: "今日启动数",
+          data: data_flask["data2"],
+          borderRadius: 6,
+          backgroundColor: CHART_COLORS.blue,
+          xAxisID: "x2"
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          intersect: false,
+          mode: "dataset"
+        },
+        plugins: {
+          legend: true
+        },
+        indexAxis: "y",
+        scales: {
+          x1: {
+            type: "linear",
+            display: true,
+            position: "top",
+            grid: {
+              display: false
+            },
+            ticks: {
+              display: true
+            }
+          },
+          x2: {
+            type: "linear",
+            display: true,
+            position: "bottom",
+            grid: {
+              display: false
+            },
+            ticks: {
+              display: true
+            }
+          },
+          y: {
+            grid: {
+              display: false
+            },
+            ticks: {
+              display: true
+            }
+          }
+        }
+      }
+    });
+  }
+</script>
+</body>
+</html>
