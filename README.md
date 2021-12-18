@@ -15,31 +15,31 @@
 
 ### 2.1 小时活跃
 
-![小时活跃](./sample/数据监控-小时活跃.png)
+![小时活跃](https://cdn.jsdelivr.net/gh/nguaduot/appstats/sample/数据监控-小时活跃.png)
 
 ### 2.2 日活跃
 
-![日活跃](./sample/数据监控-日活跃.png)
+![日活跃](https://cdn.jsdelivr.net/gh/nguaduot/appstats/sample/数据监控-日活跃.png)
 
 ### 2.3 用户
 
-![用户](./sample/数据监控-用户.png)
+![用户](https://cdn.jsdelivr.net/gh/nguaduot/appstats/sample/数据监控-用户.png)
 
 ### 2.4 图源
 
-![图源](./sample/数据监控-图源.png)
+![图源](https://cdn.jsdelivr.net/gh/nguaduot/appstats/sample/数据监控-图源.png)
 
 ### 2.5 版本
 
-![版本](./sample/数据监控-版本.png)
+![版本](https://cdn.jsdelivr.net/gh/nguaduot/appstats/sample/数据监控-版本.png)
 
 ### 2.6 分发
 
-![分发](./sample/数据监控-分发.png)
+![分发](https://cdn.jsdelivr.net/gh/nguaduot/appstats/sample/数据监控-分发.png)
 
 ### 2.7 系统
 
-![系统](./sample/数据监控-系统.png)
+![系统](https://cdn.jsdelivr.net/gh/nguaduot/appstats/sample/数据监控-系统.png)
 
 ## 3 搭建
 
