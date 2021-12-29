@@ -221,14 +221,13 @@ http {
     server localhost:5101;
   }
   server {
-    # listen 443 ssl;
-    # ssl_certificate /home/timeline/cert/1_api.nguaduot.cn_bundle.crt;
-    # ssl_certificate_key /home/timeline/cert/2_api.nguaduot.cn.key;
-    # server_name api.nguaduot.cn;
-    listen 80;
-    server_name localhost;
+    listen 443 ssl;
+    server_name api.nguaduot.cn;
+    ssl_certificate api.nguaduot.cn_bundle.crt;
+    ssl_certificate_key api.nguaduot.cn.key;
     location /appstats {
       proxy_pass http://upappstats;
+      proxy_redirect off;
       proxy_set_header Host $host;
       proxy_set_header X-Real-IP $remote_addr;
       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;

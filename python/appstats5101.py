@@ -6,12 +6,12 @@ import flask
 from flask import json
 import pymysql
 
-VERSION = "1.0.211202"
+VERSION = "1.1.211229"
 DB_CONFIG = {
     "host": "localhost",
     "port": 3306,
-    "user": "",
-    "passwd": "",
+    "user": "appstats",
+    "passwd": "appstats",
     "db": "appstats",
     "charset": "utf8mb4"
 }  # TODO
@@ -42,16 +42,16 @@ class Db(object):
         self.cursor = self.conn.cursor(cursor=pymysql.cursors.DictCursor)
 
     def log(self, app, pkg, ver, api, api_status,
-            os, os_ver, device, device_id, ip):
+            os, os_ver, device, device_id, region, ip):
         sql = "INSERT INTO `call` (`app`, `pkg`, `ver`, `api`, `status`," \
-              " `os`, `osver`, `device`, `deviceid`, `ip`)" \
-              " VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+              " `os`, `osver`, `device`, `deviceid`, `region`, `ip`)" \
+              " VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
         status = 1
         msg = ""
         try:
             self.cursor.execute(sql, (
                 app, pkg, ver, api, api_status,
-                os, os_ver, device, device_id, ip
+                os, os_ver, device, device_id, region, ip
             ))
             self.conn.commit()
         except Exception as e:
@@ -122,6 +122,7 @@ server.json_encoder = ComplexEncoder
 @server.route("/", methods=["GET", "POST"])
 def homepage():
     return flask.redirect("/appstats/timeline", code=302)
+    # or return flask.redirect(flask.url_for("timeline"), code=302)
 
 
 @server.route("/appstats/timeline", methods=["GET", "POST"])
@@ -152,16 +153,23 @@ def timeline():
         },
         "api": {
             "label": ["Bing", "NASA", "OnePlus", "拾光",
-                      "一梦幽黎", "Infinity", "其他"],
+                      "一梦幽黎", "Infinity", "向日葵8号", "其他"],
             "data1": [data_sum["/bing"], data_sum["/nasa"],
                       data_sum["/oneplus"], data_sum["/timeline"],
-                      data_sum["/ymyouli"], data_sum["/infinity"]],
+                      data_sum["/himawari8"], data_sum["/ymyouli"],
+                      data_sum["/infinity"]],
             "data2": [data_today["/bing"], data_today["/nasa"],
                       data_today["/oneplus"], data_today["/timeline"],
-                      data_today["/ymyouli"], data_today["/infinity"]]
+                      data_today["/himawari8"], data_today["/ymyouli"],
+                      data_today["/infinity"]]
+        },
+        "region": {
+            "label": ["中国大陆", "中国香港", "美国", "其他"],
+            "data1": [data_sum["cn"], data_sum["hk"], data_sum["us"]],
+            "data2": [data_today["cn"], data_today["hk"], data_today["us"]]
         },
         "src": {
-            "label": ["商店", "GitHub"],
+            "label": ["商店", "其他"],
             "data1": [data_sum["store"]],
             "data2": [data_today["store"]]
         },
@@ -176,7 +184,7 @@ def timeline():
             "data2": [data_today["win11"]]
         },
         "fan": {
-            "label": ["1天+", "2天+", "3天+", "4天+", "5天+", "6天+", "7天+"]
+            "label": ["1天+", "2天+", "3天+", "5天+", "7天+", "10天+", "14天+"]
         },
         "beat": {}
     }
@@ -196,6 +204,12 @@ def timeline():
     )
     data_out["api"]["data2"].append(
         data_today["total"] - sum(data_out["api"]["data2"])
+    )
+    data_out["region"]["data1"].append(
+        data_sum["total"] - sum(data_out["region"]["data1"])
+    )
+    data_out["region"]["data2"].append(
+        data_today["total"] - sum(data_out["region"]["data2"])
     )
     data_out["src"]["data1"].append(
         data_sum["total"] - sum(data_out["src"]["data1"])
@@ -251,8 +265,10 @@ def appstats():
     os_ver = data.get("osver")
     device = data.get("device")
     device_id = data.get("deviceid")
+    region = data.get("region")
     if (not app and not pkg and not ver and not api and not api_status
-            and not os and not os_ver and not device and not device_id):
+            and not os and not os_ver and not device and not device_id
+            and not region):
         return flask.jsonify({
             "status": 0,
             "msg": "invalid params"
@@ -265,7 +281,7 @@ def appstats():
                                    flask.request.remote_addr)
     with Db() as db:
         res = db.log(app, pkg, ver, api, api_status,
-                     os, os_ver, device, device_id, ip)
+                     os, os_ver, device, device_id, region, ip)
     return flask.jsonify({
         "status": res[0],
         "msg": res[1]

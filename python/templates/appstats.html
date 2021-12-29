@@ -50,6 +50,11 @@ p.copyright {
     height: auto;
     aspect-ratio: 0.7;
   }
+  #div_region {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1.0;
+  }
   #div_ver {
     width: 100%;
     height: auto;
@@ -78,6 +83,11 @@ p.copyright {
     aspect-ratio: 1.6;
   }
   #div_api {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1.0;
+  }
+  #div_region {
     width: 100%;
     height: auto;
     aspect-ratio: 1.2;
@@ -121,15 +131,19 @@ p.copyright {
 <div id="div_api">
   <canvas id="chart_api"></canvas>
 </div>
-<h2>5 版本</h2>
+<h2>5 地区</h2>
+<div id="div_region">
+  <canvas id="chart_region"></canvas>
+</div>
+<h2>6 版本</h2>
 <div id="div_ver">
   <canvas id="chart_ver"></canvas>
 </div>
-<h2>6 分发</h2>
+<h2>7 分发</h2>
 <div id="div_src">
   <canvas id="chart_src"></canvas>
 </div>
-<h2>7 系统</h2>
+<h2>8 系统</h2>
 <div id="div_os">
   <canvas id="chart_os"></canvas>
 </div>
@@ -140,6 +154,7 @@ p.copyright {
 <div id="flask_user" data-flask="{{user}}" style="display:none"></div>
 <div id="flask_fan" data-flask="{{fan}}" style="display:none"></div>
 <div id="flask_api" data-flask="{{api}}" style="display:none"></div>
+<div id="flask_region" data-flask="{{region}}" style="display:none"></div>
 <div id="flask_ver" data-flask="{{ver}}" style="display:none"></div>
 <div id="flask_src" data-flask="{{src}}" style="display:none"></div>
 <div id="flask_os" data-flask="{{os}}" style="display:none"></div>
@@ -158,6 +173,7 @@ p.copyright {
   renderChartLaunch();
   renderChartFan();
   renderChartApi();
+  renderChartRegion();
   renderChartVer();
   renderChartSrc();
   renderChartOs();
@@ -351,6 +367,75 @@ p.copyright {
   function renderChartApi() {
     var ctx = document.getElementById("chart_api");
     var data_flask = eval("(" + document.getElementById("flask_api").getAttribute("data-flask") + ")");
+    var options = {};
+    var chartLaunch = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: data_flask["label"],
+        datasets: [{
+          label: "历史",
+          data: data_flask["data1"],
+          borderRadius: 6,
+          backgroundColor: CHART_COLORS.grey,
+          xAxisID: "x1"
+        }, {
+          label: "今日启动数",
+          data: data_flask["data2"],
+          borderRadius: 6,
+          backgroundColor: CHART_COLORS.blue,
+          xAxisID: "x2"
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          intersect: false,
+          mode: "dataset"
+        },
+        plugins: {
+          legend: true
+        },
+        indexAxis: "y",
+        scales: {
+          x1: {
+            type: "linear",
+            display: true,
+            position: "top",
+            grid: {
+              display: false
+            },
+            ticks: {
+              display: true
+            }
+          },
+          x2: {
+            type: "linear",
+            display: true,
+            position: "bottom",
+            grid: {
+              display: false
+            },
+            ticks: {
+              display: true
+            }
+          },
+          y: {
+            grid: {
+              display: false
+            },
+            ticks: {
+              display: true
+            }
+          }
+        }
+      }
+    });
+  }
+
+  function renderChartRegion() {
+    var ctx = document.getElementById("chart_region");
+    var data_flask = eval("(" + document.getElementById("flask_region").getAttribute("data-flask") + ")");
     var options = {};
     var chartLaunch = new Chart(ctx, {
       type: "bar",
