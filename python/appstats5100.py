@@ -1,17 +1,17 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 import flask
 from flask import json
 import pymysql
 
-VERSION = "1.1.211229"
+VERSION = "1.3.220208"
 DB_CONFIG = {
     "host": "localhost",
     "port": 3306,
-    "user": "appstats",
-    "passwd": "appstats",
+    "user": "",
+    "passwd": "",
     "db": "appstats",
     "charset": "utf8mb4"
 }  # TODO
@@ -130,13 +130,13 @@ def timeline():
     with Db() as db:
         data_stats = db.stats()
         data_fans = db.fans()
-        data_beat = db.beat()
+        data_beath = db.beat()
     if data_stats[1] != 1:
         return flask.render_template("appstats.html")
     data_stats = data_stats[0]
     data_stats.sort(key=lambda d: (
         d["date"].strftime("%Y%m%d") if d["date"] else ""
-    ), reverse=True)
+    ), reverse=True)  # 按日期降序，汇总列最后
     data_today = data_stats[0]
     data_sum = data_stats[len(data_stats) - 1]
     data_out = {
@@ -146,27 +146,39 @@ def timeline():
                  " | flask 2.0.2"
                  " | nginx 1.18.0"
                  " | server %s" % ".".join(str(PORT)),
+        "beath": {},
+        "beatd": {
+            "label": [],
+            "data1": [],
+            "data2": []
+        },
         "user": {
             "label": [],
             "data1": [],
             "data2": []
         },
         "api": {
-            "label": ["Bing", "NASA", "OnePlus", "拾光",
-                      "一梦幽黎", "Infinity", "向日葵8号", "其他"],
+            "label": ["Bing", "NASA", "OnePlus", "拾光", "向日葵8号",
+                      "一梦幽黎", "Infinity", "其他"],
             "data1": [data_sum["/bing"], data_sum["/nasa"],
                       data_sum["/oneplus"], data_sum["/timeline"],
                       data_sum["/himawari8"], data_sum["/ymyouli"],
-                      data_sum["/infinity"]],
+                      data_sum["/infinity"], data_sum["/other"]],
             "data2": [data_today["/bing"], data_today["/nasa"],
                       data_today["/oneplus"], data_today["/timeline"],
                       data_today["/himawari8"], data_today["/ymyouli"],
-                      data_today["/infinity"]]
+                      data_today["/infinity"], data_today["/other"]]
         },
         "region": {
-            "label": ["中国大陆", "中国香港", "美国", "其他"],
-            "data1": [data_sum["cn"], data_sum["hk"], data_sum["us"]],
-            "data2": [data_today["cn"], data_today["hk"], data_today["us"]]
+            "label": ["中国大陆", "美国", "中国香港", "印度", "英国", "巴西", "土耳其", "其他"],
+            "data1": [data_sum["cn"], data_sum["us"],
+                      data_sum["hk"], data_sum["in"],
+                      data_sum["gb"], data_sum["br"],
+                      data_sum["tr"], data_sum["other"]],
+            "data2": [data_today["cn"], data_today["us"],
+                      data_today["hk"], data_today["in"],
+                      data_today["gb"], data_today["br"],
+                      data_today["tr"], data_today["other"]]
         },
         "src": {
             "label": ["商店", "其他"],
@@ -184,50 +196,60 @@ def timeline():
             "data2": [data_today["win11"]]
         },
         "fan": {
-            "label": ["1天+", "2天+", "3天+", "5天+", "7天+", "10天+", "14天+"]
-        },
-        "beat": {}
+            "label": ["1天+", "2天+", "5天+", "7天+", "14天+", "21天+", "28天+"]
+        }
     }
-    for item in data_stats:
-        if not item["date"]:  # 跳过汇总
-            continue
+    if data_beath[1] == 1:
+        data_beat = data_beath[0]
+        data_beat.sort(key=lambda d: d["hour"])
+        data_out["beath"]["label"] = ["%s/%s %s:00" % (
+            item["hour"][4:6], item["hour"][6:8], item["hour"][8:]
+        ) for item in data_beat]
+        data_out["beath"]["data1"] = [-item["total"] for item in data_beat]
+        data_out["beath"]["data2"] = [item["devices"] for item in data_beat]
+    for item in data_stats[:(77 if len(data_stats) - 1 >= 77 else -1)]:
+        # 跳过汇总，取161天
+        data_out["beatd"]["label"].insert(0, item["date"].strftime("%m/%d"))
+        data_out["beatd"]["data1"].insert(0, -item["total"])
+        data_out["beatd"]["data2"].insert(0, item["devices"])
+    for i in range(77 - (len(data_stats) - 1)):
+        data_out["beatd"]["label"].insert(0, (
+            data_stats[-2]["date"] + timedelta(days=-(i + 1))
+        ).strftime("%m/%d"))
+        data_out["beatd"]["data1"].insert(0, 0)
+        data_out["beatd"]["data2"].insert(0, 0)
+    for i in range(7):
+        data_out["beatd"]["label"].append((
+            data_stats[0]["date"] + timedelta(days=(i + 1))
+        ).strftime("%m/%d"))
+        data_out["beatd"]["data1"].append(0)
+        data_out["beatd"]["data2"].append(0)
+    for item in data_stats[:(7 if len(data_stats) >= 8 else -1)]:
+        # 跳过汇总，取一周
         # data_out["user"]["label"].insert(0, (
         #     "周一", "周二", "周三", "周四", "周五", "周六", "周日"
         # )[item["date"].weekday()])
         data_out["user"]["label"].insert(0, item["date"].strftime("%m/%d"))
-        data_out["user"]["data1"].insert(0, item["total"])
-        data_out["user"]["data2"].insert(0, item["devices"])
-        if len(data_out["user"]["label"]) >= 7:  # 仅提供近一周
-            break
-    data_out["api"]["data1"].append(
-        data_sum["total"] - sum(data_out["api"]["data1"])
-    )
-    data_out["api"]["data2"].append(
-        data_today["total"] - sum(data_out["api"]["data2"])
-    )
-    data_out["region"]["data1"].append(
-        data_sum["total"] - sum(data_out["region"]["data1"])
-    )
-    data_out["region"]["data2"].append(
-        data_today["total"] - sum(data_out["region"]["data2"])
-    )
+        # data_out["user"]["data1"].insert(0, item["total"])
+        data_out["user"]["data1"].insert(0, item["newcomers"])
+        data_out["user"]["data2"].insert(0, item["devices"] - item["newcomers"])
     data_out["src"]["data1"].append(
-        data_sum["total"] - sum(data_out["src"]["data1"])
+        data_sum["devices"] - sum(data_out["src"]["data1"])
     )
     data_out["src"]["data2"].append(
-        data_today["total"] - sum(data_out["src"]["data2"])
+        data_today["devices"] - sum(data_out["src"]["data2"])
     )
     data_out["ver"]["data1"].append(
-        data_sum["total"] - sum(data_out["ver"]["data1"])
+        data_sum["devices"] - sum(data_out["ver"]["data1"])
     )
     data_out["ver"]["data2"].append(
-        data_today["total"] - sum(data_out["ver"]["data2"])
+        data_today["devices"] - sum(data_out["ver"]["data2"])
     )
     data_out["os"]["data1"].append(
-        data_sum["total"] - sum(data_out["os"]["data1"])
+        data_sum["devices"] - sum(data_out["os"]["data1"])
     )
     data_out["os"]["data2"].append(
-        data_today["total"] - sum(data_out["os"]["data2"])
+        data_today["devices"] - sum(data_out["os"]["data2"])
     )
     if data_fans[1] == 1:
         data_fans = data_fans[0]
@@ -235,14 +257,6 @@ def timeline():
             data_fans["d1"], data_fans["d2"], data_fans["d3"], data_fans["d4"],
             data_fans["d5"], data_fans["d6"], data_fans["d7"]
         ]
-    if data_beat[1] == 1:
-        data_beat = data_beat[0]
-        data_beat.sort(key=lambda d: d["hour"])
-        data_out["beat"]["label"] = ["%s/%s %s:00" % (
-            item["hour"][:2], item["hour"][2:4], item["hour"][4:]
-        ) for item in data_beat]
-        data_out["beat"]["data1"] = [-item["total"] for item in data_beat]
-        data_out["beat"]["data2"] = [item["devices"] for item in data_beat]
     return flask.render_template("appstats.html", **data_out)
 
 
